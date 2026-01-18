@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Sigh (Supabase)</title>
+    <!-- SAME STYLES as before -->
+    <style>/* Copy styles from previous signup.html */</style>
+</head>
+<body>
+    <!-- SAME HTML structure as before -->
+    <div class="card">
+        <h1>Create Account</h1>
+        <form id="signupForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required minlength="3" placeholder="Enter username">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required minlength="4" placeholder="Minimum 4 characters">
+            </div>
+            <button type="submit" id="submitBtn">Create Account</button>
+            <div id="message"></div>
+        </form>
+        <div class="link">
+            <a href="login.html">Already have an account? Login</a> | <a href="index.html">Home</a>
+        </div>
+    </div>
+
+    <script>
+        // 🆕 CONFIGURABLE API URL - Change for production
+        const API_BASE = 'http://localhost:3000'; 
+        
+        const form = document.getElementById('signupForm');
+        const message = document.getElementById('message');
+        const submitBtn = document.getElementById('submitBtn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creating Account...';
+            message.innerHTML = '';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/signup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    message.innerHTML = '<div class="success">' + result.message + '</div>';
+                    form.reset();
+                    setTimeout(() => window.location.href = 'login.html', 2000);
+                } else {
+                    message.innerHTML = '<div class="error">' + (result.error || 'Signup failed') + '</div>';
+                }
+            } catch (error) {
+                message.innerHTML = '<div class="error">Supabase backend not running.<br>Terminal 1: cd sigh-backend && node server.js</div>';
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Create Account';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sigh (Supabase)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .card { background: white; padding: 2.5rem; border-radius: 20px; box-shadow: 0 25px 50px rgba(0,0,0,0.15); width: 100%; max-width: 420px; }
+        h1 { text-align: center; margin-bottom: 2rem; color: #333; font-size: 2em; }
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 0.6rem; color: #555; font-weight: 500; font-size: 0.95em; }
+        input { width: 100%; padding: 14px 18px; border: 2px solid #e1e5e9; border-radius: 12px; font-size: 16px; transition: all 0.3s; background: #fafbfc; }
+        input:focus { outline: none; border-color: #f5576c; box-shadow: 0 0 0 4px rgba(245,87,108,0.1); background: white; }
+        button { width: 100%; padding: 14px; background: linear-gradient(135deg, #f5576c 0%, #e94560 100%); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 15px 35px rgba(245,87,108,0.4); }
+        button:disabled { background: #a0aec0; cursor: not-allowed; transform: none; }
+        .message { padding: 14px; margin: 1.2rem 0; border-radius: 12px; text-align: center; font-weight: 500; display: none; }
+        .success { background: #c6f6d5; color: #22543d; border: 1px solid #9ae6b4; display: block; }
+        .error { background: #fed7d7; color: #742a2a; border: 1px solid #fc8181; display: block; }
+        .user-info { background: #e6fffa; padding: 1.5rem; border-radius: 12px; margin-top: 1.2rem; text-align: center; display: none; }
+        .link { text-align: center; margin-top: 1.5rem; }
+        .link a { color: #f5576c; text-decoration: none; font-weight: 500; }
+        .link a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Login to Sigh</h1>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required placeholder="Enter username">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required placeholder="Enter password">
+            </div>
+            <button type="submit" id="submitBtn">Login</button>
+            <div id="message"></div>
+        </form>
+        <div id="userInfo" class="user-info"></div>
+        <div class="link">
+            <a href="signup.html">Create New Account</a> | <a href="index.html">Home</a>
+        </div>
+    </div>
+
+    <script>
+        // 🆕 CONFIGURABLE API URL - Change for production deployment
+        const API_BASE = 'http://localhost:3000';
+        
+        const form = document.getElementById('loginForm');
+        const message = document.getElementById('message');
+        const userInfo = document.getElementById('userInfo');
+        const submitBtn = document.getElementById('submitBtn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Logging In...';
+            message.innerHTML = '';
+            userInfo.style.display = 'none';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    // ✅ SUCCESS: Store user info and AUTO-REDIRECT to dashboard
+                    sessionStorage.setItem('username', result.username);
+                    sessionStorage.setItem('userId', result.userId);
+                    
+                    message.innerHTML = '<div class="success">Login successful! Redirecting to dashboard...</div>';
+                    setTimeout(() => {
+                        window.location.href = 'open.html';
+                    }, 1500);
+                } else {
+                    message.innerHTML = '<div class="error">' + (result.error || 'Login failed') + '</div>';
+                }
+            } catch (error) {
+                message.innerHTML = '<div class="error">Supabase backend not running.<br>Terminal 1: <code>cd sigh-backend && node server.js</code></div>';
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Login';
+        });
+    </script>
+</body>
+</html>
