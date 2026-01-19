@@ -78,7 +78,7 @@ app.post('/api/login', async (req, res) => {
       return respond(res, 401, { success: false, error: 'Account not found' });
     }
 
-    const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const oneWeekAgo = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString();
     if (new Date(user.created_at) < new Date(oneWeekAgo)) {
       await supabase.from('users').delete().eq('id', user.id);
       return respond(res, 401, { success: false, error: 'Account expired' });
