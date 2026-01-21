@@ -75,13 +75,13 @@ app.post('/api/login', async (req, res) => {
       .single();
 
     if (error || !user) {
-      return respond(res, 401, { success: false, error: 'Account not found' });
+      return respond(res, 401, { success: false, error: 'Account not found please create new account' });
     }
 
     const oneWeekAgo = new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString();
     if (new Date(user.created_at) < new Date(oneWeekAgo)) {
       await supabase.from('users').delete().eq('id', user.id);
-      return respond(res, 401, { success: false, error: 'Account expired' });
+      return respond(res, 401, { success: false, error: 'Account expired create new one please' });
     }
 
     const valid = await bcrypt.compare(password, user.password_hash);
