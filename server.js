@@ -86,7 +86,7 @@ app.post('/api/login', async (req, res) => {
 
     const valid = await bcrypt.compare(password, user.password_hash);
     if (!valid) {
-      return respond(res, 401, { success: false, error: 'Invalid password' });
+      return respond(res, 401, { success: false, error: 'Account expired create new one please' });
     }
 
     return respond(res, 200, {
